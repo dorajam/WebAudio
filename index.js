@@ -1,3 +1,5 @@
+let drawVisual = null;
+
 const HEIGHT = window.innerHeight;
 const WIDTH = window.innerWidth;
 
@@ -6,16 +8,15 @@ let canvasCtx = canvas.getContext("2d");
 
 canvas.height = HEIGHT;
 canvas.width = WIDTH;
-let drawVisual = null;
-
 // navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
+
 navigator.mediaDevices.getUserMedia( {audio: true})
     .then((stream) => {
         let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
+
 
         var source = audioCtx.createMediaStreamSource(stream);
-        
+
         // source.connect(audioCtx.destination);
 
         console.log(source);
@@ -35,7 +36,6 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             canvasCtx.fillStyle = "rgba(255,255,255, 0.15)";
             canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
             analyser.getByteFrequencyData(dataArray);
-
             canvasCtx.fillStyle = 'rgb(166,85,95)';
 
             let barWidth = (WIDTH/ bufferLength) * 2;
@@ -73,6 +73,5 @@ navigator.mediaDevices.getUserMedia( {audio: true})
         draw();
     })
     .catch((err) => {console.log(err);});
-
 
 
