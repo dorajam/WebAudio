@@ -24,8 +24,8 @@ navigator.mediaDevices.getUserMedia( {audio: true})
         root.fixed = true;
 
         var force = d3.layout.force()
-                .gravity(0.03)   // seems like 'else' in charge is the radius of your mouse -> the radiuse by which the other nodes are repelled by
-                .charge(function(d, i) { return i ? 0 : -500; })   // return i ? means if i exists (aka True) return 0, else -2000
+                .gravity(0.01)   // seems like 'else' in charge is the radius of your mouse -> the radiuse by which the other nodes are repelled by
+                .charge(function(d, i) { return i ? 0 : -100; })   // return i ? means if i exists (aka True) return 0, else -2000
                 .nodes(nodes)
                 .size([width, height]);
 
@@ -62,6 +62,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
 
             svg.selectAll("circle")
                 .attr("r", function(d) {return d.radius; });      // cx, cy is the position of each node -> set their coordinates to the newly defined coordinates from collide
+            force.alpha(1);
         };
         draw();
 
@@ -71,6 +72,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             root.py = p1[1];
             force.resume();
         });
+
         // collide takes a node -> returns a function
         // the returned function takes
         function collide(node) {
