@@ -1,23 +1,16 @@
 let drawvisual = null;
+
 navigator.mediaDevices.getUserMedia( {audio: true})
     .then((stream) => {
         let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         var source = audioCtx.createMediaStreamSource(stream);
-
-        // source.connect(audioCtx.destination);
 
         let analyser = audioCtx.createAnalyser();
         source.connect(analyser);
         analyser.fftSize = 256;
         let bufferLength = analyser.frequencyBinCount;
         var dataArray = new Uint8Array(bufferLength);
-        // console.log(bufferLength);
 
-        // const draw = () => {
-                      // console.log(dataArray);
-
-        // }; 
-        // draw();
         var width = 960,
             height = 700;
 
@@ -27,17 +20,11 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             root = nodes[0],
             color = d3.scale.category20c();
 
-        function set_radius() {
-            var num = dataArray[j] / 5 + 30 ;
-            j++;
-            return num;
-        }
         root.radius = 0;
         root.fixed = true;
 
         var force = d3.layout.force()
-                .gravity(0.03)
-        // seems like 'else' in charge is the radius of your mouse -> the radiuse by which the other nodes are repelled by
+                .gravity(0.03)   // seems like 'else' in charge is the radius of your mouse -> the radiuse by which the other nodes are repelled by
                 .charge(function(d, i) { return i ? 0 : -500; })   // return i ? means if i exists (aka True) return 0, else -2000
                 .nodes(nodes)
                 .size([width, height]);
@@ -57,11 +44,10 @@ navigator.mediaDevices.getUserMedia( {audio: true})
         function draw() {
             drawvisual = requestAnimationFrame(draw);
             analyser.getByteFrequencyData(dataArray);
-            //console.log(dataArray);
+
             for(var j=0; j < bufferLength; j++) {
                 nodes[j].radius = dataArray[j] / 10 + 5 ;
                 nodes[0].radius = 50;
-               // console.log(nodes[i].radius); 
             }
             var q = d3.geom.quadtree(nodes),         // constructs quadtree from nodes array -> this speeds up the operations to de carried out on each node
                 // quadtree returns the root node of a new quadtree
