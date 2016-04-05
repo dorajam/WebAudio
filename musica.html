@@ -1,0 +1,23 @@
+<html>
+ <head>
+     <title>Beats generator</title>
+     <style>
+      body, html {
+          margin: 0;
+          overflow: hidden;
+      }
+      #canvas{
+          width:100%;
+          height: 100%;
+      }
+     </style>
+ </head>
+ <body onload="start()">
+     <h1>Hello there</h1>
+     <p>Record sound:</p>
+     <button onclick="recordSound">Start</button>
+     <button onclick="stopRecord">Stop</button>
+     <canvas id="canvas"></canvas>
+     <script src="./musica.js"></script>
+ </body>
+</html>

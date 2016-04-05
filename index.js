@@ -1,16 +1,12 @@
 const HEIGHT = window.innerHeight;
 const WIDTH = window.innerWidth;
 
-
 let canvas = document.getElementById("canvas")
 let canvasCtx = canvas.getContext("2d");
 
 canvas.height = HEIGHT;
 canvas.width = WIDTH;
-
 let drawVisual = null;
-let count = 0;
-
 
 // navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
 navigator.mediaDevices.getUserMedia( {audio: true})
@@ -43,23 +39,38 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             canvasCtx.fillStyle = 'rgb(166,85,95)';
 
             let barWidth = (WIDTH/ bufferLength) * 2;
-            let r =  Math.sin(new Date() / 3000) * 0.5 * 0.5;
-            let g = Math.sin(new Date() / 1000) * 0.5 * 0.5;
-            let b = Math.sin(new Date() / 2000) * 0.5 * 0.5;
-            let alphA = 0.8;
-            
-            let barColor = 'rgba(' + Math.floor(r * 255) + ',' + Math.floor(g * 255) + ','+ Math.floor(b * 255)+ ','+ (alphA) + ')';
+            let r =  255;
+            let g = Math.sin(new Date() / 5000);
+            let b = Math.sin(new Date() / 4000);
+            if(g < 0 || b < 0) {
+                g = Math.abs(g);
+                b = Math.abs(b);
+            }
+            if(g < 0.5 || b < 0.5) {
+                g = g + 0.3;
+                b = b + 0.3;
+            }
+            if(g > 0.8 || b > 0.8) {
+                g = g - 0.2;
+                b = b - 0.2;
+            }
+            let R = r;
+            let G = Math.floor(g * 255);
+            let B = Math.floor(g * 255);
+
+           let alphA = 0.8;
             for(let i =0; i <bufferLength; i++) {
-                count += 1;
                 let barHeight = Math.exp(dataArray[i] / 30);
-                canvasCtx.fillStyle = barColor; 
-                canvasCtx.fillRect((barWidth + 1)*i, HEIGHT-barHeight/2, Math.floor(barWidth + 3 +  Math.sin(i)), barHeight);
+                if(i < bufferLength/2) {
+                    R -= 1;
+              
+                }
+                let barColor = 'rgba(' + R + ',' + G + ','+ B + ','+ (alphA) + ')';
+                canvasCtx.fillStyle = barColor;
+                canvasCtx.fillRect((barWidth + 1)*i, HEIGHT-barHeight/2, Math.floor(barWidth + 3), barHeight);
             }
         };
-
         draw();
-
-        
     })
     .catch((err) => {console.log(err);});
 
