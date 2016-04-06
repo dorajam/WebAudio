@@ -1,5 +1,3 @@
-let drawvisual = null;
-
 navigator.mediaDevices.getUserMedia( {audio: true})
     .then((stream) => {
         let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -14,7 +12,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
         var width = 960,
             height = 700;
 
-        // bufferlength is half of fftSize
+        // bufferlength is half of fftSize -> this initializes the radius to be 5
         var nodes = d3.range(bufferLength).map(function(j) {
             return {radius: 5} }),
             root = nodes[0],
@@ -26,7 +24,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
         root.fixed = true;
 
         var force = d3.layout.force()
-                .gravity(0.01)   // seems like 'else' in charge is the radius of your mouse -> the radiuse by which the other nodes are repelled by
+                .gravity(0.001)   // seems like 'else' in charge is the radius of your mouse -> the radiuse by which the other nodes are repelled by
                 .charge(function(d, i) { return i ? 0 : -100; })   // return i ? means if i exists (aka True) return 0, else -2000
                 .nodes(nodes)
                 .size([width, height]);
@@ -43,11 +41,21 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             .attr("r", function(d) { return d.radius; })
             .style("fill", function(d, i) { return color(i); });
 
+
         function draw() {
             drawvisual = requestAnimationFrame(draw);
             analyser.getByteFrequencyData(dataArray);
 
-            for(var j=0; j < bufferLength; j++) {
+            // frequency --> color
+            // between 0 - 255
+            function freqToColor(freq) {
+              var bucket = Math.floor((freq) / 24); // 0 -3
+              console.log(bucket)
+                var colorArray = ["#fcc8c9", "#fbb6b7", "#faa4a5", "#f99293", "#f88081", "#f76e6e", "#f65c5d", "#f64a4b", "#dd4243", "#c43b3c", "#ac3334"];
+              return colorArray[bucket];
+            }
+            /* ["#ffe7e8","#f6cdcd","#fdb7b8","#ff9899", "#ff7e80", "#ff4e50", "#e54648", "#cc3e40", "#b23638", "#992e30", "#7f2728", "#661f20", "4c1718", "#330f10", "#190708"]; */
+            for (var j=0; j < bufferLength; j++) {
                 nodes[j].radius = dataArray[j] / 10 + 5 ;
                 nodes[0].radius = 50;
             }
@@ -59,11 +67,18 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             while (++i < n) q.visit(collide(nodes[i]));      // visit each node and take 5 arguments: quad, x1,y1,x2,y2
 
             svg.selectAll("circle")
-                .attr("cx", function(d) { return d.x; })        // cx, cy is the position of each node -> set their coordinates to the newly defined coordinates from collide()
-                .attr("cy", function(d) { return d.y; });
+                .attr("cx", function(d) { return d.x; }) // cx, cy is the position of each node -> set their coordinates to the newly defined coordinates from collide()
+                .attr("cy", function(d) { return d.y; })
+                .attr("r", function(d) {return d.radius; })      
+                .style("fill", function(d, i) { 
+                   // return freqToColor(; 
+                   console.log("index: " + i);
+                   console.log("freq: " + dataArray[i]);
+                   var color = freqToColor(dataArray[i]);
+                   console.log("color: " + color);
+                   return color;
+                });
 
-            svg.selectAll("circle")
-                .attr("r", function(d) {return d.radius; });      // cx, cy is the position of each node -> set their coordinates to the newly defined coordinates from collide
             force.alpha(1);
         };
         draw();
