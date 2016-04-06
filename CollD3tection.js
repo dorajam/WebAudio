@@ -18,7 +18,9 @@ navigator.mediaDevices.getUserMedia( {audio: true})
         var nodes = d3.range(bufferLength).map(function(j) {
             return {radius: 5} }),
             root = nodes[0],
-            color = d3.scale.category20c();
+            color = d3.scale.linear()
+                .domain([1, bufferLength])
+                .range([d3.rgb("#007AFF"), d3.rgb("#FFF500")]);
 
         root.radius = 0;
         root.fixed = true;
@@ -39,7 +41,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             .data(nodes.slice(1))
             .enter().append("circle")
             .attr("r", function(d) { return d.radius; })
-            .style("fill", function(d, i) { return color(i % 4); });
+            .style("fill", function(d, i) { return color(i); });
 
         function draw() {
             drawvisual = requestAnimationFrame(draw);
