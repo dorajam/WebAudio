@@ -2,6 +2,12 @@ navigator.mediaDevices.getUserMedia( {audio: true})
     .then((stream) => {
         let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         var source = audioCtx.createMediaStreamSource(stream);
+        var osc = audioCtx.createOscillator();
+        var gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        osc.type = 'sine';
+        osc.frequency.value = 0;
 
         let analyser = audioCtx.createAnalyser();
         source.connect(analyser);
@@ -60,6 +66,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
                 if(dataArray[j] < 5) {nodes[j].radius = dataArray[j] + 7}
                 else {
                     nodes[j].radius = Math.pow(dataArray[j], 2) / Math.pow(255,2) * 30 + 7;
+                    osc.frequency.value = nodes[j].radius / 30 * 1000;
                 }
             }
             var q = d3.geom.quadtree(nodes),         // constructs quadtree from nodes array -> this speeds up the operations to de carried out on each node
@@ -82,6 +89,8 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             force.alpha(1);
         };
         draw();
+
+        osc.start();
 
         svg.on("mousemove", function() {
             var p1 = d3.mouse(this);    // p1 is the mouse position -> p1[0] = x, p1[1] is y cordinate
