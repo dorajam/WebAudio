@@ -1,5 +1,3 @@
-let drawvisual = null;
-
 navigator.mediaDevices.getUserMedia( {audio: true})
     .then((stream) => {
         let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -7,7 +5,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
 
         let analyser = audioCtx.createAnalyser();
         source.connect(analyser);
-        analyser.fftSize = 256;
+        analyser.fftSize = 64;
         let bufferLength = analyser.frequencyBinCount;
         var dataArray = new Uint8Array(bufferLength);
 
@@ -41,11 +39,21 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             .attr("r", function(d) { return d.radius; })
             .style("fill", function(d, i) { return color(i % 4); });
 
+
         function draw() {
             drawvisual = requestAnimationFrame(draw);
             analyser.getByteFrequencyData(dataArray);
 
-            for(var j=0; j < bufferLength; j++) {
+            // frequency --> color
+            // between 0 - 255
+            function freqToColor(freq) {
+              var bucket = Math.floor((freq + 1) / 64); // 0 -3
+              console.log(bucket)
+              var colorArray = ["#F94941","#F94941","#FF9191", "#FBC4C4"];
+              return colorArray[bucket];
+            }
+
+            for (var j=0; j < bufferLength; j++) {
                 nodes[j].radius = dataArray[j] / 10 + 5 ;
                 nodes[0].radius = 50;
             }
@@ -57,11 +65,18 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             while (++i < n) q.visit(collide(nodes[i]));      // visit each node and take 5 arguments: quad, x1,y1,x2,y2
 
             svg.selectAll("circle")
-                .attr("cx", function(d) { return d.x; })        // cx, cy is the position of each node -> set their coordinates to the newly defined coordinates from collide()
-                .attr("cy", function(d) { return d.y; });
+                .attr("cx", function(d) { return d.x; }) // cx, cy is the position of each node -> set their coordinates to the newly defined coordinates from collide()
+                .attr("cy", function(d) { return d.y; })
+                .attr("r", function(d) {return d.radius; })      
+                .style("fill", function(d, i) { 
+                   // return freqToColor(; 
+                   console.log("index: " + i);
+                   console.log("freq: " + dataArray[i]);
+                   var color = freqToColor(dataArray[i]);
+                   console.log("color: " + color);
+                   return color;
+                });
 
-            svg.selectAll("circle")
-                .attr("r", function(d) {return d.radius; });      // cx, cy is the position of each node -> set their coordinates to the newly defined coordinates from collide
             force.alpha(1);
         };
         draw();
