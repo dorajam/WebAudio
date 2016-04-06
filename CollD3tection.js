@@ -44,7 +44,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
 
 
         function draw() {
-            drawvisual = requestAnimationFrame(draw);
+            var drawvisual = requestAnimationFrame(draw);
             analyser.getByteFrequencyData(dataArray);
 
             // frequency --> color
@@ -54,6 +54,8 @@ navigator.mediaDevices.getUserMedia( {audio: true})
                 var colorArray = ["#fcc8c9", "#fbb6b7", "#faa4a5", "#f99293", "#f88081", "#f76e6e", "#f65c5d", "#f64a4b", "#dd4243", "#c43b3c", "#ac3334"];
               return colorArray[bucket];
             }
+
+            // map radius to frequencies 
             for (var j=0; j < bufferLength; j++) {
                 if(dataArray[j] < 5) {nodes[j].radius = dataArray[j] + 7}
                 else {
@@ -72,18 +74,18 @@ navigator.mediaDevices.getUserMedia( {audio: true})
                 .attr("cy", function(d) { return d.y; })
                 .attr("r", function(d) {return d.radius; })      
                 .style("fill", function(d, i) { 
-                   // return freqToColor(; 
                    var color = freqToColor(dataArray[i]);
                    return color;
-                });
-
+                })
+                .style("opacity", 0.9);
+            // keep balls bouncing
             force.alpha(1);
         };
         draw();
 
         svg.on("mousemove", function() {
             var p1 = d3.mouse(this);    // p1 is the mouse position -> p1[0] = x, p1[1] is y cordinate
-            root.px = p1[0];            // change root position to equal your mouse position -> root is an invisible root (radius=0) -> other nodes are relatively positited to this
+            root.px = p1[0];            // change root position to equal your mouse position -> root is an invisible root (radius=0) with + charge
             root.py = p1[1];
             force.resume();
         });
