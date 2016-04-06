@@ -1,15 +1,27 @@
 <html>
     <head>
-        
-    </head>
-    <body>
         <style>
          body,html {
              margin: 0;
              overflow: hidden;
              }
+         .Aligner {
+             display: flex;
+             align-items:center;
+             justify-content: center;
+         }
+         #d3canvas {
+             /* max-width: 25%; */
+         }
         </style>
         <script src="https://d3js.org/d3.v3.min.js"></script>
+    </head>
+    <body>
+        <div id="info">Yoooooooo Sean Lee</div>
+        <div class="Aligner">
+            <div id="d3canvas"></div>
+        </div>
+        </div>
         <script src="./CollD3tection.js"></script>
     </body>
 </html>

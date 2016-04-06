@@ -6,10 +6,11 @@ navigator.mediaDevices.getUserMedia( {audio: true})
         let analyser = audioCtx.createAnalyser();
         source.connect(analyser);
         analyser.fftSize = 256;
+
         let bufferLength = analyser.frequencyBinCount;
         var dataArray = new Uint8Array(bufferLength);
 
-        var width = 960,
+        var width = 1024,
             height = 700;
 
         // bufferlength is half of fftSize -> this initializes the radius to be 5
@@ -31,7 +32,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
 
         force.start();
 
-        var svg = d3.select("body").append("svg")     // select body element and create svg element inside
+        var svg = d3.select("#d3canvas").append("svg")     // select body element and create svg element inside
                 .attr("width", width)
                 .attr("height", height);
 
@@ -50,14 +51,14 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             // between 0 - 255
             function freqToColor(freq) {
               var bucket = Math.floor((freq) / 24); // 0 -3
-              console.log(bucket)
                 var colorArray = ["#fcc8c9", "#fbb6b7", "#faa4a5", "#f99293", "#f88081", "#f76e6e", "#f65c5d", "#f64a4b", "#dd4243", "#c43b3c", "#ac3334"];
               return colorArray[bucket];
             }
-            /* ["#ffe7e8","#f6cdcd","#fdb7b8","#ff9899", "#ff7e80", "#ff4e50", "#e54648", "#cc3e40", "#b23638", "#992e30", "#7f2728", "#661f20", "4c1718", "#330f10", "#190708"]; */
             for (var j=0; j < bufferLength; j++) {
-                nodes[j].radius = dataArray[j] / 10 + 5 ;
-                nodes[0].radius = 50;
+                if(dataArray[j] < 5) {nodes[j].radius = dataArray[j] + 7}
+                else {
+                    nodes[j].radius = Math.pow(dataArray[j], 2) / Math.pow(255,2) * 30 + 7;
+                }
             }
             var q = d3.geom.quadtree(nodes),         // constructs quadtree from nodes array -> this speeds up the operations to de carried out on each node
                 // quadtree returns the root node of a new quadtree
@@ -72,10 +73,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
                 .attr("r", function(d) {return d.radius; })      
                 .style("fill", function(d, i) { 
                    // return freqToColor(; 
-                   console.log("index: " + i);
-                   console.log("freq: " + dataArray[i]);
                    var color = freqToColor(dataArray[i]);
-                   console.log("color: " + color);
                    return color;
                 });
 
