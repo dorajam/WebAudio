@@ -4,10 +4,10 @@ navigator.mediaDevices.getUserMedia( {audio: true})
         var source = audioCtx.createMediaStreamSource(stream);
         var osc = audioCtx.createOscillator();
         var gainNode = audioCtx.createGain();
-        osc.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        osc.type = 'sine';
-        osc.frequency.value = 0;
+        // osc.connect(gainNode);
+        // gainNode.connect(audioCtx.destination);
+        // osc.type = 'sine';
+        // osc.frequency.value = 0;
 
         let analyser = audioCtx.createAnalyser();
         source.connect(analyser);
