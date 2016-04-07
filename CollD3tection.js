@@ -64,7 +64,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             // map radius to frequencies 
             for (var j=0; j < bufferLength; j++) {
                 if(dataArray[j] < 5) {nodes[j].radius = dataArray[j] + 7}
-                else {
+               else {
                     nodes[j].radius = Math.pow(dataArray[j], 2) / Math.pow(255,2) * 30 + 7;
                     osc.frequency.value = nodes[j].radius / 30 * 1000;
                 }
@@ -90,7 +90,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
         };
         draw();
 
-        osc.start();
+        // osc.start();
 
         svg.on("mousemove", function() {
             var p1 = d3.mouse(this);    // p1 is the mouse position -> p1[0] = x, p1[1] is y cordinate
