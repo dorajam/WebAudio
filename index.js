@@ -1,3 +1,4 @@
+let multiplied = false;
 let drawVisual = null;
 
 const HEIGHT = window.innerHeight;
@@ -55,16 +56,16 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             return output;
         }
 
-        const numBins = 26;
+        const numBins = 40;
         const numPoints = numBins + 2;
         const numSections = numPoints - 1;
-        let melDataArray = new Uint8Array(numBins);
-
+        let melDataArray = new Float32Array(numBins);
         const melWidth = hzToMel(8000) / numSections;
-        let multipliers = []
+
         function fromFFTtriangle(input) {
 
             for (let i=0; i < melDataArray.length; i++){
+                let multipliers = [];
                 let minHz = melToHz(i * melWidth);
                 let centerHz = melToHz((i + 1) * melWidth);
                 let maxHz = melToHz((i + 2) * melWidth);
@@ -72,9 +73,9 @@ navigator.mediaDevices.getUserMedia( {audio: true})
                 let slopeAscending = 1/(centerHz - minHz);
                 let slopeDescending = 1/(centerHz - maxHz);    // this needs to be negative!!!!
 
-                let minInputIndex = Math.floor(minHz / fftBinWidth);
-                let maxInputIndex = Math.floor(maxHz / fftBinWidth);
-                melDataArray[i] = 0;
+                let minInputIndex = (minHz / fftBinWidth);
+                let maxInputIndex = (maxHz / fftBinWidth);
+                melDataArray[i] = 0.0;
 
                 for (let j = minInputIndex; j < maxInputIndex; j++) {
                     // input[j] * 1 is for rectangle
@@ -86,26 +87,28 @@ navigator.mediaDevices.getUserMedia( {audio: true})
                     } else {
                         mult = 1 + (hzVal - centerHz) * slopeDescending;
                     }
-                    multipliers.push(mult);
-                    melDataArray[i] += mult * input[j];
+                    if (mult < 0) {
+                        multipliers.push(mult);
+                    }
+                    melDataArray[i] += mult * input[Math.floor(j)];
                 }
-                melDataArray[i] = Math.log(melDataArray[i]); 
+                melDataArray[i] = Math.log(melDataArray[i]/100 + 1);
+                // if (!multiplied)  console.log(multipliers);
             }
-            // console.log(multipliers);
+            // multiplied = true;
         }
         
-        canvasCtx.clearRect(0,0, WIDTH, HEIGHT);
         
         const draw = () => {
             drawVisual = requestAnimationFrame(draw);
             analyser.getByteFrequencyData(dataArray);
             fromFFTtriangle(dataArray);
+            let DCTarray = DCT(melDataArray);
             
-            canvasCtx.fillStyle = 'rgb(166,85,95)';
             canvasCtx.fillStyle = "rgba(255,255,255, 0.15)";
             canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
-            let barWidth = (WIDTH/ melDataArray.length);
+            let barWidth = (WIDTH/ DCTarray.length);
             // let r =  255;
             // let g = Math.sin(new Date() / 5000);
             // let b = Math.sin(new Date() / 4000);
@@ -127,19 +130,30 @@ navigator.mediaDevices.getUserMedia( {audio: true})
 
            // let alphA = 0.8;
             canvasCtx.fillStyle = 'rgba(0,0,0,1)';
-            for(let i =0; i <melDataArray.length; i++) {
-                let barHeight = melDataArray[i] * 100;
+            for(let i =0; i <DCTarray.length; i++) {
+                let barHeight = DCTarray[i] * 100;
                 // if(i < bufferLength/2) {
                     // R -= 1;
                 // }
                 // let barColor = 'rgba(' + R + ',' + G + ','+ B + ','+ (alphA) + ')';
-                canvasCtx.fillRect((barWidth + 1)*i
-                                , Math.floor(HEIGHT-barHeight/2)
-                                , Math.floor(barWidth) + 2
+                canvasCtx.fillRect((barWidth + 1) * i
+                                , Math.floor(HEIGHT-barHeight)
+                                , barWidth
                                 , Math.floor(barHeight));
             }};
         draw();
     })
     .catch((err) => {console.log(err);});
 
+function DCT(input) {
+    let N = input.length;
+    let output = new Float32Array(input.length);
 
+    for (let k = 2; k < 13; k++) {
+        output[k] = 0;
+        for (let n = 0; n < N; n++) {
+            output[k] += input[n] * Math.cos(Math.PI/N * (n+0.5) * k);
+        }
+    }
+    return output;
+}
