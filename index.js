@@ -61,7 +61,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
         let melDataArray = new Uint8Array(numBins);
 
         const melWidth = hzToMel(audioCtx.sampleRate / 2) / numSections;
-
+        let multipliers = []
         function fromFFTtriangle(input) {
 
             for (let i=0; i < melDataArray.length; i++){
@@ -70,10 +70,11 @@ navigator.mediaDevices.getUserMedia( {audio: true})
                 let maxHz = melToHz((i + 2) * melWidth);
 
                 let slopeAscending = 1/(centerHz - minHz);
-                let slopeDescending = 1/(maxHz - centerHz);
+                let slopeDescending = 1/(centerHz - maxHz);    // this needs to be negative!!!!
 
                 let minInputIndex = Math.floor(minHz / fftBinWidth);
                 let maxInputIndex = Math.floor(maxHz / fftBinWidth);
+                melDataArray[i] = 0;
 
                 for (let j = minInputIndex; j < maxInputIndex; j++) {
                     // input[j] * 1 is for rectangle
@@ -85,25 +86,19 @@ navigator.mediaDevices.getUserMedia( {audio: true})
                     } else {
                         mult = 1 + (hzVal - centerHz) * slopeDescending;
                     }
+                    multipliers.push(mult);
                     melDataArray[i] += mult * input[j];
                 }
             }
-            return melDataArray;
+            // console.log(multipliers);
         }
         
         canvasCtx.clearRect(0,0, WIDTH, HEIGHT);
         
-        function resetMelDataArray() {
-            for (let i=0; i < numBins; i++) {
-                melDataArray[i] = 0;
-            }
-        }
-
         const draw = () => {
             drawVisual = requestAnimationFrame(draw)
             analyser.getByteFrequencyData(dataArray);
-            resetMelDataArray();
-            melDataArray = fromFFTtriangle(dataArray);
+            fromFFTtriangle(dataArray);
             
             canvasCtx.fillStyle = 'rgb(166,85,95)';
             canvasCtx.fillStyle = "rgba(255,255,255, 0.15)";
