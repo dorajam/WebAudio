@@ -55,12 +55,12 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             return output;
         }
 
-        const numBins = 100;
+        const numBins = 26;
         const numPoints = numBins + 2;
         const numSections = numPoints - 1;
         let melDataArray = new Uint8Array(numBins);
 
-        const melWidth = hzToMel(audioCtx.sampleRate / 2) / numSections;
+        const melWidth = hzToMel(8000) / numSections;
         let multipliers = []
         function fromFFTtriangle(input) {
 
@@ -89,6 +89,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
                     multipliers.push(mult);
                     melDataArray[i] += mult * input[j];
                 }
+                melDataArray[i] = Math.log(melDataArray[i]); 
             }
             // console.log(multipliers);
         }
@@ -96,7 +97,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
         canvasCtx.clearRect(0,0, WIDTH, HEIGHT);
         
         const draw = () => {
-            drawVisual = requestAnimationFrame(draw)
+            drawVisual = requestAnimationFrame(draw);
             analyser.getByteFrequencyData(dataArray);
             fromFFTtriangle(dataArray);
             
@@ -127,7 +128,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
            // let alphA = 0.8;
             canvasCtx.fillStyle = 'rgba(0,0,0,1)';
             for(let i =0; i <melDataArray.length; i++) {
-                let barHeight = melDataArray[i] * 2;
+                let barHeight = melDataArray[i] * 100;
                 // if(i < bufferLength/2) {
                     // R -= 1;
                 // }
