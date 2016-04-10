@@ -55,15 +55,16 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             return output;
         }
 
+        const numBins = 100;
+        const numPoints = numBins + 2;
+        const numSections = numPoints - 1;
+        let melDataArray = new Uint8Array(numBins);
+
+        const melWidth = hzToMel(audioCtx.sampleRate / 2) / numSections;
+
         function fromFFTtriangle(input) {
-            const numBins = 100;
-            const numPoints = numBins + 2;
-            const numSections = numPoints - 1;
-            const output = new Uint8Array(numBins);
 
-            const melWidth = hzToMel(audioCtx.sampleRate / 2) / numSections;
-
-            for (let i=0; i < output.length; i++){
+            for (let i=0; i < melDataArray.length; i++){
                 let minHz = melToHz(i * melWidth);
                 let centerHz = melToHz((i + 1) * melWidth);
                 let maxHz = melToHz((i + 2) * melWidth);
@@ -84,19 +85,25 @@ navigator.mediaDevices.getUserMedia( {audio: true})
                     } else {
                         mult = 1 + (hzVal - centerHz) * slopeDescending;
                     }
-                    output[i] += mult * input[j];
+                    melDataArray[i] += mult * input[j];
                 }
             }
-            return output;
+            return melDataArray;
         }
         
         canvasCtx.clearRect(0,0, WIDTH, HEIGHT);
         
+        function resetMelDataArray() {
+            for (let i=0; i < numBins; i++) {
+                melDataArray[i] = 0;
+            }
+        }
+
         const draw = () => {
             drawVisual = requestAnimationFrame(draw)
             analyser.getByteFrequencyData(dataArray);
-
-            let melDataArray = fromFFTtriangle(dataArray);
+            resetMelDataArray();
+            melDataArray = fromFFTtriangle(dataArray);
             
             canvasCtx.fillStyle = 'rgb(166,85,95)';
             canvasCtx.fillStyle = "rgba(255,255,255, 0.15)";
