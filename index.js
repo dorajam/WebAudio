@@ -24,46 +24,19 @@ navigator.mediaDevices.getUserMedia( {audio: true})
 
         let bufferLength = analyser.frequencyBinCount;
         let dataArray = new Uint8Array(bufferLength);
-        const fftBinWidth = audioCtx.sampleRate / analyser.fftSize;
 
         // console.log(fftBinWidth);  // 21
-
-        // mel scaling
-        function hzToMel(f) {
-            return 1127 * Math.log(1 + f/700)
-        }
-        function melToHz(f) {
-            return 700 * (Math.exp(f / 1127)-1)
-        }
-
-        function fromFFTRect(input) {
-            const numBins = 26;
-            const output = new Uint8Array(numBins);
-
-            const melWidth = hzToMel(audioCtx.sampleRate / 2) / numBins;
-
-            for (let i=0; i < output.length; i++){
-                let minHz = melToHz(i * melWidth);
-                let maxHz = melToHz((i + 1) * melWidth);
-
-                let minInputIndex = Math.floor(minHz / fftBinWidth);
-                let maxInputIndex = Math.floor(maxHz / fftBinWidth);
-
-                for (let j = minInputIndex; j < maxInputIndex; j++) {
-                    output[i] += input[j];
-                }
-            }
-            return output;
-        }
-
+        const fftBinWidth = audioCtx.sampleRate / analyser.fftSize;
         const numBins = 40;
         const numPoints = numBins + 2;
         const numSections = numPoints - 1;
-        let melDataArray = new Float32Array(numBins);
+        const melDataArray = new Float32Array(numBins);
+
+        const buffer = [];
         const melWidth = hzToMel(8000) / numSections;
 
-        function fromFFTtriangle(input) {
 
+        function fromFFTtriangle(input) {
             for (let i=0; i < melDataArray.length; i++){
                 let multipliers = [];
                 let minHz = melToHz(i * melWidth);
@@ -75,11 +48,10 @@ navigator.mediaDevices.getUserMedia( {audio: true})
 
                 let minInputIndex = (minHz / fftBinWidth);
                 let maxInputIndex = (maxHz / fftBinWidth);
+                
                 melDataArray[i] = 0.0;
 
                 for (let j = minInputIndex; j < maxInputIndex; j++) {
-                    // input[j] * 1 is for rectangle
-                    // input[j] * weight constructs triangle
                     let mult;
                     let hzVal = j * fftBinWidth;
                     if (hzVal < centerHz) {
@@ -92,7 +64,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
                     }
                     melDataArray[i] += mult * input[Math.floor(j)];
                 }
-                melDataArray[i] = Math.log(melDataArray[i]/100 + 1);
+                melDataArray[i] = Math.log(melDataArray[i] + 1);
                 // if (!multiplied)  console.log(multipliers);
             }
             // multiplied = true;
@@ -102,9 +74,16 @@ navigator.mediaDevices.getUserMedia( {audio: true})
         const draw = () => {
             drawVisual = requestAnimationFrame(draw);
             analyser.getByteFrequencyData(dataArray);
+
             fromFFTtriangle(dataArray);
+
             let DCTarray = DCT(melDataArray);
-            
+
+            if (buffer.length > 40) {
+                buffer.shift();
+            }
+            buffer.push(DCTarray);
+
             canvasCtx.fillStyle = "rgba(255,255,255, 0.15)";
             canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
@@ -129,30 +108,60 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             // let B = Math.floor(g * 255);
 
            // let alphA = 0.8;
-            canvasCtx.fillStyle = 'rgba(0,0,0,1)';
-            for(let i =0; i <DCTarray.length; i++) {
-                let barHeight = DCTarray[i] * 100;
-                // if(i < bufferLength/2) {
-                    // R -= 1;
-                // }
-                // let barColor = 'rgba(' + R + ',' + G + ','+ B + ','+ (alphA) + ')';
-                canvasCtx.fillRect((barWidth + 1) * i
-                                , Math.floor(HEIGHT-barHeight)
-                                , barWidth
-                                , Math.floor(barHeight));
+            for (let i = 0; i< buffer.length; i++) {
+                for (let j = 0; j < buffer[i].length; j++) {
+                    let v = buffer[i][j]* 0.5 + 0.5;
+                    canvasCtx.fillRect(i*WIDTH/buffer.length
+                                        , j * HEIGHT/buffer[i].length
+                                        , (i+1) * WIDTH/buffer.length
+                                        , (j+1) * HEIGHT/buffer[i].length);
+                    }
             }};
         draw();
     })
     .catch((err) => {console.log(err);});
 
+
+
+function hzToMel(f) {
+    return 1127 * Math.log(1 + f/700)
+}
+
+function melToHz(f) {
+    return 700 * (Math.exp(f / 1127)-1)
+}
+
+const DCTsize = 11;
 function DCT(input) {
     let N = input.length;
     let output = new Float32Array(input.length);
 
-    for (let k = 2; k < 13; k++) {
+    for (let i = 2; i < 2 + DCTsize; i++) {
+        let k = i - 2;
         output[k] = 0;
         for (let n = 0; n < N; n++) {
             output[k] += input[n] * Math.cos(Math.PI/N * (n+0.5) * k);
+        }
+    }
+    return output;
+}
+
+// -------------------------- code for rectangle window function --------------------------
+function fromFFTRect(input) {
+    const numBins = 26;
+    const output = new Uint8Array(numBins);
+
+    const melWidth = hzToMel(audioCtx.sampleRate / 2) / numBins;
+
+    for (let i=0; i < output.length; i++){
+        let minHz = melToHz(i * melWidth);
+        let maxHz = melToHz((i + 1) * melWidth);
+
+        let minInputIndex = Math.floor(minHz / fftBinWidth);
+        let maxInputIndex = Math.floor(maxHz / fftBinWidth);
+
+        for (let j = minInputIndex; j < maxInputIndex; j++) {
+            output[i] += input[j];
         }
     }
     return output;
