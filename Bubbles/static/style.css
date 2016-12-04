@@ -1,0 +1,81 @@
+ body,html {
+	 overflow: hidden;
+}
+body {
+	margin: 0 auto;
+	padding: 0 0 0 0;
+	text-decoration: none;
+	text-align: center;
+	max-width: 1200px;
+}
+.head {
+	position: relative;
+	padding-bottom: 5px;
+	height: 50px;
+	width: 100%;
+	margin: 0 0 0 0;
+}
+.menu {
+	text-decoration: none;
+	display: inline-block;
+	text-align: center;
+	padding: 1%;
+	color: rgb(102, 102, 102);
+	letter-spacing: 1px;
+	font-style: normal;
+	position: relative;
+	margin-bottom: 20px;
+	font-family: "Andale Mono", "Lucida Console", "Courier New", monospace;
+}
+.menu:hover{
+	opacity: 0.6;
+	filter: alpha(opacity=60);
+}
+ .Aligner {
+	 display: flex;
+	 align-items:center;
+	 justify-content: center;
+ }
+ #info {
+	 font-size: 26px;
+	 text-align: center;
+	   color: #767572;
+	   font-family: 'indie flower';
+	 margin: 20 auto 20 auto;
+ }
+.post-footer {
+	display: block;
+	max-width: 596px;
+	height: 150px;
+	position: relative;
+	margin:auto;
+}
+
+.post-footer::after {
+	content:"";
+	background-image: url("assets/foot.png");
+	background-position: center;
+	margin: 70px;
+	height: 35px;
+	position: absolute;
+	background-size: contain;
+	background-repeat: no-repeat;
+	left:0;
+	right:0;
+	top:0;
+}
+.icon {
+	float: left;
+	opacity: 0.4;
+	height: 100%;
+}
+.icon img {
+	margin: 20px 5px 20px 5px ;
+}
+
+.icon img:hover{
+	opacity: 0.7;
+    filter: alpha(opacity=60);
+}
+
+ 

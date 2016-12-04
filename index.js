@@ -36,12 +36,11 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             canvasCtx.fillStyle = "rgba(255,255,255, 0.15)";
             canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
             analyser.getByteFrequencyData(dataArray);
-            canvasCtx.fillStyle = 'rgb(166,85,95)';
 
-            let barWidth = (WIDTH/ bufferLength) * 2;
-            let r =  255;
-            let g = Math.sin(new Date() / 5000);
-            let b = Math.sin(new Date() / 4000);
+            let barWidth = (WIDTH/ bufferLength) * 10;
+            let r =  100;
+            let g = 255;
+            let b = 255;
             if(g < 0 || b < 0) {
                 g = Math.abs(g);
                 b = Math.abs(b);
@@ -67,7 +66,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
                 }
                 let barColor = 'rgba(' + R + ',' + G + ','+ B + ','+ (alphA) + ')';
                 canvasCtx.fillStyle = barColor;
-                canvasCtx.fillRect((barWidth + 1)*i, HEIGHT-barHeight/2, Math.floor(barWidth + 3), barHeight);
+                canvasCtx.fillRect((barWidth + 10)*i, HEIGHT-barHeight/2, Math.floor(barWidth + 20), barHeight);
             }
         };
         draw();
