@@ -4,10 +4,6 @@ navigator.mediaDevices.getUserMedia( {audio: true})
         var source = audioCtx.createMediaStreamSource(stream);
         var osc = audioCtx.createOscillator();
         var gainNode = audioCtx.createGain();
-        // osc.connect(gainNode);
-        // gainNode.connect(audioCtx.destination);
-        // osc.type = 'sine';
-        // osc.frequency.value = 0;
 
         let analyser = audioCtx.createAnalyser();
         source.connect(analyser);
@@ -61,7 +57,7 @@ navigator.mediaDevices.getUserMedia( {audio: true})
               return colorArray[bucket];
             }
 
-            // map radius to frequencies 
+            // map radius to frequencies
             for (var j=0; j < bufferLength; j++) {
                 if(dataArray[j] < 5) {nodes[j].radius = dataArray[j] + 7}
                else {
@@ -79,8 +75,8 @@ navigator.mediaDevices.getUserMedia( {audio: true})
             svg.selectAll("circle")
                 .attr("cx", function(d) { return d.x; }) // cx, cy is the position of each node -> set their coordinates to the newly defined coordinates from collide()
                 .attr("cy", function(d) { return d.y; })
-                .attr("r", function(d) {return d.radius; })      
-                .style("fill", function(d, i) { 
+                .attr("r", function(d) {return d.radius; })
+                .style("fill", function(d, i) {
                    var color = freqToColor(dataArray[i]);
                    return color;
                 })
