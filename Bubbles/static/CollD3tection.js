@@ -1,5 +1,5 @@
 navigator.mediaDevices.getUserMedia( {audio: true})
-    .then((stream) => {
+    .then(function(stream) {
         let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         var source = audioCtx.createMediaStreamSource(stream);
         var osc = audioCtx.createOscillator();
