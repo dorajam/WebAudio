@@ -8,6 +8,6 @@ For more details on the MFCC implementation, find the code [here](https://github
 ### some visuals:
 - [MFCC sound transformation spectorgram] (https://dorajam.github.io/Voice-detection/index.html)
 - [JS WebAudio API visualization] (https://dorajam.github.io/WebAudio/index.html)  
-- [D3 music visualization - bubbles](https://dorajam.github.io/WebAudio/CollD3tection.html)  
+- [D3 music visualization - bubbles](https://dorajam.github.io/WebAudio/Bubbles/CollD3tection.html)  
 - [D3 music visualization - bars] (https://dorajam.github.io/WebAudio/d3Lines.html)  
 
