@@ -1,10 +1,13 @@
 # WebAudio
 ##visualizing audio in D3 + transforming raw audio signals
 
-The purpose of this project was to play around with JavaScript Web Audio API and find appropriate transformations for raw frequencies that are compatible with speech processing tasks. You'll find the raw visualizations below. To see one of the transformations implemented (Mel frequency cepstral coefficients) click [here](https://github.com/dorajam/Voice-detection/tree/master/soundTransformation).
+This started at Spotify's Music Hackathon in April 2016 with two of my friends. The purpose of this project was to play around with JavaScript Web Audio API and to find appropriate methods to convert raw audio signals from FFT to human-compatible levels. This led us to experiment with Mel frequency cepstral coefficients (an algo commonly used for speech analysis tasks). To see the differences between the raw mapping of sound and MFCC see the visuals below.
 
-### some more projects:
+For more details on the MFCC implementation, find the code [here](https://github.com/dorajam/Voice-detection/tree/master/soundTransformation).
+
+### some visuals:
+- [MFCC sound transformation spectorgram] (https://dorajam.github.io/Voice-detection/index.html)
 - [JS WebAudio API visualization] (https://dorajam.github.io/WebAudio/index.html)  
 - [D3 music visualization - bubbles](https://dorajam.github.io/WebAudio/CollD3tection.html)  
-- [D3 music visualization - lines] (https://dorajam.github.io/WebAudio/d3Lines.html)  
+- [D3 music visualization - bars] (https://dorajam.github.io/WebAudio/d3Lines.html)  
 
